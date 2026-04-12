@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🌸 启动完整应用 (Server + Electron)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/concurrently",
+      "runtimeArgs": [
+        "--kill-others",
+        "--names", "SERVER,ELECTRON",
+        "--prefix-colors", "cyan,magenta",
+        "nodemon server/index.js",
+        "wait-on tcp:9999 && cross-env NODE_ENV=development electron ."
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "🔌 仅启动 Node 服务端",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/server/index.js",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": { "NODE_ENV": "development" },
+      "skipFiles": ["<node_internals>/**"],
+      "restart": true
+    },
+    {
+      "name": "⚡ 仅启动 Electron",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "runtimeArgs": [".", "--inspect=5858", "--remote-debugging-port=9222"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": { "NODE_ENV": "development" },
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🌸 全栈调试",
+      "configurations": ["🔌 仅启动 Node 服务端", "⚡ 仅启动 Electron"],
+      "stopAll": true
+    }
+  ]
+}

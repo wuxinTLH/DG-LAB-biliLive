@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coyote Live</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- ── 标题栏 ── -->
+      <div class="titlebar">
+        <div class="logo-wrap">
+          <div class="logo-mark">⚡</div>
+          <span class="logo-text">Coyote</span>
+          <span class="logo-live">LIVE</span>
+        </div>
+        <div class="titlebar-status">
+          <div class="status-pill" id="pillBili">
+            <span class="dot" id="dotBili"></span>
+            <span id="lblBili">B站 未连接</span>
+          </div>
+          <div class="status-pill" id="pillDglab">
+            <span class="dot" id="dotDglab"></span>
+            <span id="lblDglab">郊狼 未连接</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 侧边栏 ── -->
+      <nav class="sidebar">
+        <button class="nav-btn active" data-page="connect">
+          <span class="icon">🔌</span><span>连接</span>
+        </button>
+        <button class="nav-btn" data-page="rules">
+          <span class="icon">⚙️</span><span>规则</span>
+        </button>
+        <button class="nav-btn" data-page="control">
+          <span class="icon">🎛️</span><span>控制</span>
+        </button>
+        <button class="nav-btn" data-page="log">
+          <span class="icon">📋</span><span>日志</span>
+        </button>
+      </nav>
+
+      <!-- ── 主内容 ── -->
+      <main class="content">
+        <!-- ══ 连接页 ══ -->
+        <section id="page-connect" class="page active">
+          <div class="page-title">连接配置</div>
+
+          <div class="cards-row">
+            <!-- B站卡片：改为身份码输入 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-icon bili-icon">B</div>
+                <span class="card-title">B站直播开放平台</span>
+                <span class="badge" id="biliStatus">未连接</span>
+              </div>
+              <div class="card-body">
+                <!-- 身份码 -->
+                <label class="field-label"
+                  >主播身份码 <span style="color: var(--pink)">*</span></label
+                >
+                <div class="input-row">
+                  <input
+                    type="text"
+                    id="codeInput"
+                    class="input"
+                    placeholder="身份码 或 直播间号，例：123456"
+                  />
+                  <button class="btn btn-primary" id="btnBiliConnect">
+                    连接
+                  </button>
+                </div>
+                <div class="field-hint" id="biliHint">
+                  🌸
+                  填写直播间号即可连接；填写身份码（直播姬→互动游戏→身份码）可避免弹幕用户名打码
+                </div>
+
+                <!-- 折叠提示：如何配置开放平台密钥 -->
+                <details class="key-hint mt-10">
+                  <summary>⚙️ 还未配置开放平台密钥？点此查看</summary>
+                  <div class="key-hint-body">
+                    <p>需在 <code>.env</code> 文件中填写以下三项：</p>
+                    <pre>
+BILI_ACCESS_KEY_ID=你的AccessKeyId
+BILI_ACCESS_KEY_SECRET=你的AccessKeySecret
+BILI_APP_ID=你的应用ID</pre
+                    >
+                    <p>
+                      前往
+                      <strong>open-live.bilibili.com</strong>
+                      注册个人开发者并创建应用，即可获取以上信息。
+                    </p>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            <!-- 郊狼卡片 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-icon dg-icon">⚡</div>
+                <span class="card-title">郊狼 DG-LAB 3.0</span>
+                <span class="badge" id="dglabStatus">未连接</span>
+              </div>
+              <div class="card-body">
+                <label class="field-label">WebSocket 服务地址</label>
+                <div class="input-row">
+                  <input
+                    type="text"
+                    id="wsHostInput"
+                    class="input"
+                    placeholder="localhost 或局域网IP"
+                  />
+                  <input
+                    type="text"
+                    id="wsPortInput"
+                    class="input input-sm"
+                    value="9999"
+                  />
+                </div>
+                <button
+                  class="btn btn-blue full-width mt-8"
+                  id="btnDglabConnect"
+                >
+                  📱 生成配对二维码
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 二维码 -->
+          <div class="qr-section" id="qrSection" style="display: none">
+            <div class="card qr-card">
+              <div class="card-header">
+                <div class="card-icon dg-icon">📷</div>
+                <span class="card-title">用郊狼 APP 扫描配对</span>
+                <span class="badge badge-warn" id="qrStatusBadge"
+                  >等待扫描</span
+                >
+                <button class="btn btn-ghost btn-sm" id="btnRefreshQR">
+                  🔄 刷新
+                </button>
+              </div>
+              <div class="card-body qr-body">
+                <div class="qr-frame">
+                  <img id="qrImg" src="" alt="二维码" class="qr-img" />
+                  <div class="qr-corner tl"></div>
+                  <div class="qr-corner tr"></div>
+                  <div class="qr-corner bl"></div>
+                  <div class="qr-corner br"></div>
+                  <div class="qr-scan"></div>
+                </div>
+                <div class="qr-info">
+                  <div class="field-label">二维码内容</div>
+                  <div class="qr-url" id="qrUrl">生成中...</div>
+                  <div class="field-hint">
+                    🌐 确保手机与本机在同一局域网，或在「服务地址」填写公网
+                    IP<br />
+                    💡 本地调试用 <code>localhost</code>，外网用公网 IP
+                    或内网穿透地址
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 状态总览 -->
+          <div class="status-panel">
+            <div class="status-card" id="scBili">
+              <div class="sc-top">
+                <span class="sc-emoji">🎥</span><span class="sc-dot"></span>
+              </div>
+              <div class="sc-label">B站直播间</div>
+              <div class="sc-val" id="scValBili">—</div>
+            </div>
+            <div class="status-card" id="scWs">
+              <div class="sc-top">
+                <span class="sc-emoji">🔌</span><span class="sc-dot"></span>
+              </div>
+              <div class="sc-label">WebSocket 服务</div>
+              <div class="sc-val" id="scValWs">ws://localhost:9999</div>
+            </div>
+            <div class="status-card" id="scDg">
+              <div class="sc-top">
+                <span class="sc-emoji">⚡</span><span class="sc-dot"></span>
+              </div>
+              <div class="sc-label">郊狼 APP</div>
+              <div class="sc-val" id="scValDg">等待扫码</div>
+            </div>
+            <div class="status-card" id="scRule">
+              <div class="sc-top">
+                <span class="sc-emoji">🌸</span><span class="sc-dot"></span>
+              </div>
+              <div class="sc-label">规则引擎</div>
+              <div class="sc-val" id="scValRule">—</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ 规则页 ══ -->
+        <section id="page-rules" class="page">
+          <div class="page-header-row">
+            <div class="page-title">触发规则</div>
+            <div class="page-actions">
+              <label class="toggle-label">
+                <input type="checkbox" id="rulesEnabled" checked />
+                <span class="toggle-track"></span>
+                <span>启用规则</span>
+              </label>
+              <button class="btn btn-ghost btn-sm" id="btnAddRule">
+                ✨ 添加规则
+              </button>
+              <button class="btn btn-primary btn-sm" id="btnSaveRules">
+                💾 保存
+              </button>
+            </div>
+          </div>
+          <div class="rules-hint">
+            当 B站直播间触发事件（礼物、上舰、SC）时，匹配的规则将自动向郊狼 APP
+            发送控制指令
+          </div>
+          <div id="rulesContainer" class="rules-list">
+            <div class="empty-state">
+              <div class="empty-icon">🌸</div>
+              <div class="empty-text">正在加载规则...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ 手动控制页 ══ -->
+        <section id="page-control" class="page">
+          <div class="page-title">手动控制</div>
+          <div class="cards-row">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-icon bili-icon">A</div>
+                <span class="card-title">A 通道</span>
+                <span class="strength-display" id="strengthA">0</span>
+              </div>
+              <div class="card-body">
+                <div style="padding: 6px 0">
+                  <input
+                    type="range"
+                    class="strength-slider"
+                    id="sliderA"
+                    min="0"
+                    max="200"
+                    value="0"
+                  />
+                  <div class="strength-marks">
+                    <span>0</span><span>50</span><span>100</span><span>150</span
+                    ><span>200</span>
+                  </div>
+                </div>
+                <div class="ctrl-btns">
+                  <button
+                    class="btn btn-sm btn-danger"
+                    onclick="App.setStrength(1, 0)"
+                  >
+                    归零 🚫
+                  </button>
+                  <button
+                    class="btn btn-sm"
+                    onclick="App.adjustStrength(1, -5)"
+                  >
+                    −5
+                  </button>
+                  <button
+                    class="btn btn-sm"
+                    onclick="App.adjustStrength(1, -1)"
+                  >
+                    −1
+                  </button>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="App.adjustStrength(1, 1)"
+                  >
+                    +1
+                  </button>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="App.adjustStrength(1, 5)"
+                  >
+                    +5
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-icon dg-icon">B</div>
+                <span class="card-title">B 通道</span>
+                <span class="strength-display" id="strengthB">0</span>
+              </div>
+              <div class="card-body">
+                <div style="padding: 6px 0">
+                  <input
+                    type="range"
+                    class="strength-slider"
+                    id="sliderB"
+                    min="0"
+                    max="200"
+                    value="0"
+                  />
+                  <div class="strength-marks">
+                    <span>0</span><span>50</span><span>100</span><span>150</span
+                    ><span>200</span>
+                  </div>
+                </div>
+                <div class="ctrl-btns">
+                  <button
+                    class="btn btn-sm btn-danger"
+                    onclick="App.setStrength(2, 0)"
+                  >
+                    归零 🚫
+                  </button>
+                  <button
+                    class="btn btn-sm"
+                    onclick="App.adjustStrength(2, -5)"
+                  >
+                    −5
+                  </button>
+                  <button
+                    class="btn btn-sm"
+                    onclick="App.adjustStrength(2, -1)"
+                  >
+                    −1
+                  </button>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="App.adjustStrength(2, 1)"
+                  >
+                    +1
+                  </button>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="App.adjustStrength(2, 5)"
+                  >
+                    +5
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-16">
+            <div class="card-header">
+              <div
+                class="card-icon"
+                style="
+                  background: linear-gradient(
+                    135deg,
+                    var(--purple),
+                    var(--blue)
+                  );
+                  color: white;
+                  box-shadow: 0 3px 8px rgba(192, 132, 252, 0.35);
+                "
+              >
+                🎵
+              </div>
+              <span class="card-title">波形预设</span>
+              <span class="badge">A 通道</span>
+            </div>
+            <div class="card-body">
+              <div class="preset-grid">
+                <button class="preset-btn" data-preset="light" data-ch="A">
+                  <span class="p-icon">💤</span><span class="p-name">轻柔</span>
+                </button>
+                <button class="preset-btn" data-preset="rhythm" data-ch="A">
+                  <span class="p-icon">🎵</span><span class="p-name">节奏</span>
+                </button>
+                <button class="preset-btn" data-preset="wave" data-ch="A">
+                  <span class="p-icon">🌊</span><span class="p-name">波浪</span>
+                </button>
+                <button class="preset-btn" data-preset="pulse" data-ch="A">
+                  <span class="p-icon">💥</span><span class="p-name">脉冲</span>
+                </button>
+                <button class="preset-btn" data-preset="intense" data-ch="A">
+                  <span class="p-icon">⚡</span><span class="p-name">强烈</span>
+                </button>
+                <button class="preset-btn" data-preset="extreme" data-ch="A">
+                  <span class="p-icon">🔥</span><span class="p-name">极端</span>
+                </button>
+              </div>
+              <div class="duration-row">
+                <span class="field-label" style="margin: 0">持续时间</span>
+                <input
+                  type="number"
+                  id="presetDuration"
+                  class="input input-sm"
+                  value="5"
+                  min="1"
+                  max="60"
+                />
+                <span class="field-hint" style="margin: 0">秒</span>
+                <div style="flex: 1"></div>
+                <button class="btn btn-danger btn-sm" id="btnClearAll">
+                  🚫 清空所有队列
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ 日志页 ══ -->
+        <section id="page-log" class="page">
+          <div class="page-header-row">
+            <div class="page-title">事件日志</div>
+            <div class="page-actions">
+              <button class="btn btn-ghost btn-sm" id="btnClearLog">
+                🗑️ 清空
+              </button>
+            </div>
+          </div>
+          <div id="logContainer" class="log-list">
+            <div class="empty-state">
+              <div class="empty-icon">🌸</div>
+              <div class="empty-text">连接直播间后，事件将显示在这里</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

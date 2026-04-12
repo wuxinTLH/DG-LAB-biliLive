@@ -1,0 +1,65 @@
+{
+  "name": "coyote-live",
+  "version": "1.0.0",
+  "description": "B站直播 × 郊狼DG-LAB Socket V2 控制器",
+  "main": "src/main/index.js",
+  "scripts": {
+    "dev": "concurrently --kill-others --names \"SERVER,ELECTRON\" --prefix-colors \"cyan,magenta\" \"npm run dev:server\" \"npm run dev:electron\"",
+    "dev:server": "nodemon server/index.js",
+    "dev:electron": "wait-on tcp:9999 && cross-env NODE_ENV=development electron .",
+    "start": "npm run dev",
+    "build": "electron-builder",
+    "lint": "eslint src server --ext .js"
+  },
+  "dependencies": {
+    "bilibili-live-ws": "^6.3.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "qrcode": "^1.5.3",
+    "uuid": "^9.0.0",
+    "winston": "^3.11.0",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^29.4.6",
+    "electron-builder": "^24.9.1",
+    "nodemon": "^3.0.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.coyote.live",
+    "productName": "Coyote Live",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "server/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/renderer/assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/renderer/assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "nodemonConfig": {
+    "watch": [
+      "server"
+    ],
+    "ext": "js,json",
+    "ignore": [
+      "server/logs/*"
+    ]
+  }
+}
