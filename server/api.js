@@ -52,20 +52,30 @@ function createApiRouter() {
     });
   });
 
-  // ── B站连接（身份码 code 或直播间号 roomId 均可）──
+  // ── B站连接（直播间号）──
   router.post("/bili/connect", async (req, res) => {
-    const input = req.body.code || req.body.roomId || req.body.room_id;
-    if (!input) {
-      return res
-        .status(400)
-        .json({ error: "缺少参数：请传 code（身份码）或 roomId（直播间号）" });
+    const roomId = (req.body.roomId || req.body.room_id || req.body.code || "")
+      .toString()
+      .trim();
+    if (!roomId || !/^\d+$/.test(roomId)) {
+      return res.status(400).json({ error: "请传入数字直播间号（roomId）" });
     }
     try {
-      await biliConnector.connect(String(input).trim());
+      await biliConnector.connect(roomId);
       res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: e.message });
     }
+  });
+
+  // ── SESSDATA 动态写入（运行时修改 process.env，无需重启）──
+  router.post("/bili/sessdata", (req, res) => {
+    const { sessdata } = req.body;
+    process.env.BILI_SESSDATA = (sessdata || "").trim();
+    logger.info(
+      `[API] SESSDATA ${process.env.BILI_SESSDATA ? "已设置" : "已清除"}`,
+    );
+    res.json({ ok: true });
   });
 
   router.post("/bili/disconnect", (req, res) => {

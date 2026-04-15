@@ -50,49 +50,67 @@
           <div class="page-title">连接配置</div>
 
           <div class="cards-row">
-            <!-- B站卡片：改为身份码输入 -->
+            <!-- B站卡片 -->
             <div class="card">
               <div class="card-header">
                 <div class="card-icon bili-icon">B</div>
-                <span class="card-title">B站直播开放平台</span>
+                <span class="card-title">B站直播间</span>
                 <span class="badge" id="biliStatus">未连接</span>
               </div>
               <div class="card-body">
-                <!-- 身份码 -->
                 <label class="field-label"
-                  >主播身份码 <span style="color: var(--pink)">*</span></label
+                  >直播间号 <span style="color: var(--pink)">*</span></label
                 >
                 <div class="input-row">
                   <input
-                    type="text"
-                    id="codeInput"
+                    type="number"
+                    id="roomIdInput"
                     class="input"
-                    placeholder="身份码 或 直播间号，例：123456"
+                    placeholder="例：1945098"
+                    min="1"
                   />
                   <button class="btn btn-primary" id="btnBiliConnect">
                     连接
                   </button>
                 </div>
                 <div class="field-hint" id="biliHint">
-                  🌸
-                  填写直播间号即可连接；填写身份码（直播姬→互动游戏→身份码）可避免弹幕用户名打码
+                  🌸 输入直播间数字房间号即可连接，无需任何密钥
                 </div>
 
-                <!-- 折叠提示：如何配置开放平台密钥 -->
                 <details class="key-hint mt-10">
-                  <summary>⚙️ 还未配置开放平台密钥？点此查看</summary>
+                  <summary>🍪 可选：SESSDATA（弹幕用户名去打码）</summary>
                   <div class="key-hint-body">
-                    <p>需在 <code>.env</code> 文件中填写以下三项：</p>
-                    <pre>
-BILI_ACCESS_KEY_ID=你的AccessKeyId
-BILI_ACCESS_KEY_SECRET=你的AccessKeySecret
-BILI_APP_ID=你的应用ID</pre
-                    >
                     <p>
-                      前往
-                      <strong>open-live.bilibili.com</strong>
-                      注册个人开发者并创建应用，即可获取以上信息。
+                      不填时弹幕用户名可能显示为 <strong>***</strong>。填写你的
+                      <code>SESSDATA</code> cookie 后可显示真实用户名。
                     </p>
+                    <p>
+                      获取：浏览器打开 bilibili.com → F12 → Application →
+                      Cookies → <code>SESSDATA</code> (不要打开显示已解码的URL)
+                      <br />
+                      <hr/>
+                      <img
+                        src="../static/sessdata_tips.png"
+                        alt="不要打开显示已解码的URL"
+                      />
+                    </p>
+                    <div class="input-row mt-6">
+                      <input
+                        type="password"
+                        id="sessdataInput"
+                        class="input"
+                        placeholder="粘贴 SESSDATA 值（可选）"
+                      />
+                      <button
+                        class="btn btn-sm btn-primary"
+                        id="btnSaveSessdata"
+                      >
+                        保存
+                      </button>
+                    </div>
+                    <div class="field-hint" id="sessdataHint">
+                      仅存于本机内存，不上传。重新连接后生效。
+                    </div>
                   </div>
                 </details>
               </div>
@@ -157,8 +175,7 @@ BILI_APP_ID=你的应用ID</pre
                   <div class="field-label">二维码内容</div>
                   <div class="qr-url" id="qrUrl">生成中...</div>
                   <div class="field-hint">
-                    🌐 确保手机与本机在同一局域网，或在「服务地址」填写公网
-                    IP<br />
+                    🌐 确保手机与本机在同一局域网，或填写公网 IP<br />
                     💡 本地调试用 <code>localhost</code>，外网用公网 IP
                     或内网穿透地址
                   </div>
@@ -345,7 +362,6 @@ BILI_APP_ID=你的应用ID</pre
               </div>
             </div>
           </div>
-
           <div class="card mt-16">
             <div class="card-header">
               <div

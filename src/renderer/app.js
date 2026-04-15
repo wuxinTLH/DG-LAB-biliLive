@@ -1,7 +1,7 @@
 /**
  * Coyote Live — 前端逻辑
- * HTTP API → localhost:9998/api
- * WebSocket → localhost:9999  (DG-LAB 协议)
+ * HTTP API  → localhost:9998/api
+ * WebSocket → localhost:9999 (DG-LAB)
  */
 const App = (() => {
   const API_BASE = "http://localhost:9998/api";
@@ -11,7 +11,6 @@ const App = (() => {
   let lastEventTs = 0;
   let rules = [];
 
-  // ══ 初始化 ══
   async function init() {
     setupNav();
     bindEvents();
@@ -40,15 +39,36 @@ const App = (() => {
 
   // ══ 事件绑定 ══
   function bindEvents() {
-    // B站（身份码）
+    // B站连接 - 直播间号
     document
       .getElementById("btnBiliConnect")
       .addEventListener("click", toggleBili);
-    document.getElementById("codeInput").addEventListener("keydown", (e) => {
+    document.getElementById("roomIdInput").addEventListener("keydown", (e) => {
       if (e.key === "Enter") toggleBili();
     });
 
-    // 郊狼二维码
+    // SESSDATA 保存
+    const btnSaveSessdata = document.getElementById("btnSaveSessdata");
+    if (btnSaveSessdata) {
+      btnSaveSessdata.addEventListener("click", async () => {
+        const val = document.getElementById("sessdataInput").value.trim();
+        const res = await api("POST", "/bili/sessdata", { sessdata: val });
+        const hint = document.getElementById("sessdataHint");
+        if (res?.ok) {
+          hint.textContent = val
+            ? "✅ SESSDATA 已保存，重新连接直播间后生效"
+            : "✅ 已清除 SESSDATA";
+          btnSaveSessdata.innerHTML = "✅ 已保存";
+          setTimeout(() => {
+            btnSaveSessdata.innerHTML = "保存";
+          }, 2000);
+        } else {
+          hint.textContent = `❌ 保存失败：${res?.error || "未知错误"}`;
+        }
+      });
+    }
+
+    // 郊狼
     document
       .getElementById("btnDglabConnect")
       .addEventListener("click", generateQR);
@@ -93,18 +113,15 @@ const App = (() => {
       });
     });
 
-    // 清空
     document.getElementById("btnClearAll").addEventListener("click", () => {
       api("POST", "/dglab/clear", { channel: "A" });
     });
-
-    // 日志清空
     document.getElementById("btnClearLog").addEventListener("click", () => {
       document.getElementById("logContainer").innerHTML = "";
     });
   }
 
-  // ══ WebSocket ══
+  // ══ WebSocket (DG-LAB) ══
   function connectWS() {
     return new Promise((resolve) => {
       const tryConnect = () => {
@@ -136,12 +153,10 @@ const App = (() => {
 
   function handleWS(msg) {
     const { type, clientId, targetId, message } = msg;
-
     if (type === "bind" && message === "targetId") {
       myClientId = clientId;
       setStatusCard("scWs", true, `ws://localhost:9999`);
     }
-
     if (type === "bind" && message === "200") {
       appClientId = clientId !== myClientId ? clientId : targetId;
       api("POST", "/dglab/register", { myClientId, appClientId });
@@ -150,17 +165,14 @@ const App = (() => {
       updateDotLabel("dotDglab", "lblDglab", true, "郊狼 已连接");
       setStatusCard("scDg", true, "APP 已配对");
     }
-
     if (type === "bind" && message === "400")
       setBadge("dglabStatus", "配对失败", "error");
-
     if (type === "break") {
       appClientId = null;
       setBadge("dglabStatus", "已断开", "");
       updateDotLabel("dotDglab", "lblDglab", false, "郊狼 已断开");
       setStatusCard("scDg", false, "连接已断开");
     }
-
     if (
       type === "msg" &&
       typeof message === "string" &&
@@ -196,37 +208,30 @@ const App = (() => {
     }
   }
 
-  // ══ B站连接（身份码）══
+  // ══ B站连接（直播间号）══
   async function toggleBili() {
     const badge = document.getElementById("biliStatus");
     const btn = document.getElementById("btnBiliConnect");
-
-    // 已连接 → 断开
     if (badge.classList.contains("connected")) {
       await api("POST", "/bili/disconnect");
       updateBiliUI(false);
       return;
     }
-
-    // 未连接 → 连接
-    const code = document.getElementById("codeInput").value.trim();
-    if (!code) {
-      showHint("biliHint", "⚠️ 请先输入主播身份码~");
+    const roomId = document.getElementById("roomIdInput").value.trim();
+    if (!roomId || !/^\d+$/.test(roomId)) {
+      showHint("biliHint", "⚠️ 请输入数字直播间号");
       return;
     }
-
     btn.textContent = "连接中...";
     btn.disabled = true;
-
-    const res = await api("POST", "/bili/connect", { code });
+    const res = await api("POST", "/bili/connect", { roomId });
     btn.disabled = false;
-
     if (res?.ok) {
       btn.textContent = "断开连接";
-      showHint("biliHint", "🌸 正在连接开放平台，请稍候...");
+      showHint("biliHint", "🌸 正在连接，请稍候...");
     } else {
       btn.textContent = "连接";
-      showHint("biliHint", `❌ 连接失败：${res?.error || "未知错误"}`);
+      showHint("biliHint", `❌ ${res?.error || "连接失败"}`);
     }
   }
 
@@ -319,7 +324,7 @@ const App = (() => {
     renderRules();
   }
 
-  // ══ 轮询 ══
+  // ══ 轮询状态 ══
   function startPoll() {
     setInterval(async () => {
       const evData = await api("GET", `/events?since=${lastEventTs}`);
@@ -337,14 +342,12 @@ const App = (() => {
   function syncStatus(s) {
     const biliOn = s.bili?.connected;
     updateBiliUI(biliOn, s.bili?.roomId);
-
     const ruleOn = s.rules?.enabled;
     setStatusCard(
       "scRule",
       ruleOn,
       ruleOn ? `${s.rules?.count} 条规则已激活` : "已暂停",
     );
-
     if (s.dglab?.state)
       syncStrength(s.dglab.state.strengthA, s.dglab.state.strengthB);
   }
@@ -353,10 +356,16 @@ const App = (() => {
   function updateBiliUI(on, roomId) {
     setBadge("biliStatus", on ? "已连接 💕" : "未连接", on ? "connected" : "");
     updateDotLabel("dotBili", "lblBili", on, `B站 ${on ? "已连接" : "未连接"}`);
-    setStatusCard("scBili", on, on ? `game_id: ${roomId || "—"}` : "—");
+    setStatusCard(
+      "scBili",
+      on,
+      on
+        ? `房间 ${roomId || document.getElementById("roomIdInput").value}`
+        : "—",
+    );
     const btn = document.getElementById("btnBiliConnect");
     if (btn && !btn.disabled) btn.textContent = on ? "断开连接" : "连接";
-    if (on) showHint("biliHint", `🌸 已连接开放平台，正在监听直播事件`);
+    if (on) showHint("biliHint", `🌸 房间 ${roomId} 已连接，正在监听直播事件`);
   }
 
   function syncStrength(sA, sB) {
@@ -391,9 +400,7 @@ const App = (() => {
     const lbl = document.getElementById(lblId);
     if (lbl) lbl.textContent = text;
     const pill = dot?.closest(".status-pill");
-    if (pill) {
-      pill.classList.toggle("on", on);
-    }
+    if (pill) pill.classList.toggle("on", on);
   }
 
   function showHint(id, text) {
@@ -480,9 +487,9 @@ const App = (() => {
       case "dgAction":
         return `规则「${esc(d.rule || "?")}」→ ${d.action?.wavePreset || ""} ${d.action?.duration || ""}s`;
       case "biliConnected":
-        return "开放平台连接成功 🌸";
+        return "直播间连接成功 🌸";
       case "biliDisconnected":
-        return "开放平台连接断开";
+        return "直播间连接断开";
       case "biliError":
         return `错误：${esc(d.message || "?")}`;
       default:
