@@ -1,88 +1,114 @@
-const WebSocket = require('ws')
-const { v4: uuidv4 } = require('uuid')
-const logger = require('../utils/logger')
-const { ConnectionManager } = require('./connectionManager')
-const { MessageHandler } = require('./messageHandler')
+const WebSocket = require("ws");
+const { v4: uuidv4 } = require("uuid");
+const logger = require("../utils/logger");
+const { ConnectionManager } = require("./connectionManager");
+const { MessageHandler } = require("./messageHandler");
 
 /** @type {ConnectionManager} */
-let connManager
+let connManager;
 /** @type {Map<string, NodeJS.Timeout>} */
-const heartbeatTimers = new Map()
+const heartbeatTimers = new Map();
 
-const HEARTBEAT_INTERVAL = parseInt(process.env.HEARTBEAT_INTERVAL || '60000')
+const HEARTBEAT_INTERVAL = parseInt(process.env.HEARTBEAT_INTERVAL || "60000");
 
 function createDGLabWSServer(port) {
-  const wss = new WebSocket.Server({ port })
-  connManager = new ConnectionManager()
-  const msgHandler = new MessageHandler(connManager)
+  const wss = new WebSocket.Server({ port });
+  connManager = new ConnectionManager();
+  const msgHandler = new MessageHandler(connManager);
 
-  wss.on('connection', (ws) => {
-    const clientId = uuidv4()
-    connManager.register(clientId, ws)
+  wss.on("connection", (ws, req) => {
+    // 从 URL path 读取 intendedTarget（APP 扫码时 URL 为 ws://host:port/<前端clientId>）
+    const urlPath = (req.url || "").replace(/^\//, "").split("?")[0].trim();
 
-    // 分配 clientId
-    send(ws, { type: 'bind', clientId, targetId: '', message: 'targetId' })
-    logger.info(`[WS] 新连接 clientId=${clientId}`)
+    const clientId = uuidv4();
+    connManager.register(clientId, ws);
+
+    // 如果 URL path 带了目标 clientId，存起来供 bind 消息使用
+    if (urlPath && urlPath !== clientId) {
+      connManager.setIntendedTarget(clientId, urlPath);
+      logger.info(`[WS] 新连接 clientId=${clientId} intendedTarget=${urlPath}`);
+    } else {
+      logger.info(`[WS] 新连接 clientId=${clientId}`);
+    }
+
+    // 统一告知连接方自己的 clientId，等待后续 bind 消息
+    send(ws, { type: "bind", clientId, targetId: "", message: "targetId" });
 
     // 心跳
     const hbTimer = setInterval(() => {
-      const partner = connManager.getPartner(clientId)
+      const partner = connManager.getPartner(clientId);
       if (partner) {
-        send(ws, { type: 'heartbeat', clientId, targetId: partner, message: '200' })
+        send(ws, {
+          type: "heartbeat",
+          clientId,
+          targetId: partner,
+          message: "200",
+        });
       }
-    }, HEARTBEAT_INTERVAL)
-    heartbeatTimers.set(clientId, hbTimer)
+    }, HEARTBEAT_INTERVAL);
+    heartbeatTimers.set(clientId, hbTimer);
 
-    ws.on('message', (raw) => {
-      let data
+    ws.on("message", (raw) => {
+      let data;
       try {
-        data = JSON.parse(raw.toString())
+        data = JSON.parse(raw.toString());
       } catch {
-        send(ws, { type: 'error', clientId, targetId: '', message: '403' })
-        return
+        send(ws, { type: "error", clientId, targetId: "", message: "403" });
+        return;
       }
       if (raw.toString().length > 1950) {
-        send(ws, { type: 'error', clientId, targetId: '', message: '405' })
-        return
+        send(ws, { type: "error", clientId, targetId: "", message: "405" });
+        return;
       }
-      msgHandler.handle(clientId, ws, data)
-    })
+      msgHandler.handle(clientId, ws, data);
+    });
 
-    ws.on('close', () => {
-      clearInterval(heartbeatTimers.get(clientId))
-      heartbeatTimers.delete(clientId)
-      const partner = connManager.getPartner(clientId)
+    ws.on("close", () => {
+      clearInterval(heartbeatTimers.get(clientId));
+      heartbeatTimers.delete(clientId);
+      const partner = connManager.getPartner(clientId);
       if (partner) {
-        const partnerWs = connManager.getWs(partner)
+        const partnerWs = connManager.getWs(partner);
         if (partnerWs) {
-          send(partnerWs, { type: 'break', clientId, targetId: partner, message: '209' })
+          send(partnerWs, {
+            type: "break",
+            clientId,
+            targetId: partner,
+            message: "209",
+          });
         }
       }
-      connManager.unregister(clientId)
-      logger.info(`[WS] 断开 clientId=${clientId}`)
-    })
+      // 如果是 APP 断开，通知控制器清除连接
+      const dgController = require("./controller");
+      if (dgController.appClientId === clientId) {
+        dgController.clearConnection();
+        logger.info(`[CTRL] APP 断开，控制器已清除`);
+      }
+      connManager.unregister(clientId);
+      logger.info(`[WS] 断开 clientId=${clientId}`);
+    });
 
-    ws.on('error', (err) => {
-      logger.error(`[WS] 错误 clientId=${clientId}`, err.message)
-    })
-  })
+    ws.on("error", (err) => {
+      logger.error(`[WS] 错误 clientId=${clientId}`, err.message);
+    });
+  });
 
   // 暴露 connManager 供 API 查询
-  wss._connManager = connManager
-  global.__connManager = connManager
+  wss._connManager = connManager;
+  global.__connManager = connManager;
 
-  logger.info(`[DGLAB] WebSocket 服务已启动，端口 ${port}`)
-  return wss
+  logger.info(`[DGLAB] WebSocket 服务已启动，端口 ${port}`);
+  return wss;
 }
 
 function send(ws, obj) {
   try {
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(obj))
+      ws.send(JSON.stringify(obj));
     }
   } catch (e) {
-    logger.error('[WS] send error', e.message)
+    logger.error("[WS] send error", e.message);
   }
 }
 
-module.exports = { createDGLabWSServer }
+module.exports = { createDGLabWSServer };

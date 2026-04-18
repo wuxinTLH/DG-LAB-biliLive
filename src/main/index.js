@@ -83,3 +83,11 @@ ipcMain.handle("get-config", () => ({
   dgLabPort: parseInt(process.env.DGLAB_WS_PORT || "9999"),
   apiPort: parseInt(process.env.APP_API_PORT || "9998"),
 }));
+
+// ── IPC：窗口控制 ──
+ipcMain.on("window-minimize", () => mainWindow?.minimize());
+ipcMain.on("window-maximize", () => {
+  if (mainWindow?.isMaximized()) mainWindow.unmaximize();
+  else mainWindow?.maximize();
+});
+ipcMain.on("window-close", () => mainWindow?.close());

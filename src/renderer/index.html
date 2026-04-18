@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coyote Live</title>
+    <title>DG-LAB BiliLive</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -12,7 +12,7 @@
       <div class="titlebar">
         <div class="logo-wrap">
           <div class="logo-mark">⚡</div>
-          <span class="logo-text">Coyote</span>
+          <span class="logo-text">DG-LAB BiliLive</span>
           <span class="logo-live">LIVE</span>
         </div>
         <div class="titlebar-status">
@@ -25,6 +25,18 @@
             <span id="lblDglab">郊狼 未连接</span>
           </div>
         </div>
+        <!-- ── 窗口控制按钮 (Windows / non-mac) ── -->
+        <div class="window-controls" id="windowControls">
+          <button class="wc-btn wc-min" id="btnMinimize" title="最小化">
+            <svg width="10" height="2" viewBox="0 0 10 2"><rect width="10" height="2" fill="currentColor"/></svg>
+          </button>
+          <button class="wc-btn wc-max" id="btnMaximize" title="最大化">
+            <svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.6" y="0.6" width="8.8" height="8.8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          </button>
+          <button class="wc-btn wc-close" id="btnClose" title="关闭">
+            <svg width="10" height="10" viewBox="0 0 10 10"><line x1="0.5" y1="0.5" x2="9.5" y2="9.5" stroke="currentColor" stroke-width="1.5"/><line x1="9.5" y1="0.5" x2="0.5" y2="9.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+        </div>
       </div>
 
       <!-- ── 侧边栏 ── -->
@@ -35,11 +47,17 @@
         <button class="nav-btn" data-page="rules">
           <span class="icon">⚙️</span><span>规则</span>
         </button>
+        <button class="nav-btn" data-page="modes">
+          <span class="icon">🎮</span><span>模式</span>
+        </button>
         <button class="nav-btn" data-page="control">
           <span class="icon">🎛️</span><span>控制</span>
         </button>
         <button class="nav-btn" data-page="log">
           <span class="icon">📋</span><span>日志</span>
+        </button>
+        <button class="nav-btn" data-page="obs">
+          <span class="icon">📺</span><span>OBS</span>
         </button>
       </nav>
 
@@ -48,7 +66,6 @@
         <!-- ══ 连接页 ══ -->
         <section id="page-connect" class="page active">
           <div class="page-title">连接配置</div>
-
           <div class="cards-row">
             <!-- B站卡片 -->
             <div class="card">
@@ -58,64 +75,28 @@
                 <span class="badge" id="biliStatus">未连接</span>
               </div>
               <div class="card-body">
-                <label class="field-label"
-                  >直播间号 <span style="color: var(--pink)">*</span></label
-                >
+                <label class="field-label">直播间号 <span style="color: var(--pink)">*</span></label>
                 <div class="input-row">
-                  <input
-                    type="number"
-                    id="roomIdInput"
-                    class="input"
-                    placeholder="例：1945098"
-                    min="1"
-                  />
-                  <button class="btn btn-primary" id="btnBiliConnect">
-                    连接
-                  </button>
+                  <input type="number" id="roomIdInput" class="input" placeholder="例：1945098" min="1" />
+                  <button class="btn btn-primary" id="btnBiliConnect">连接</button>
                 </div>
-                <div class="field-hint" id="biliHint">
-                  🌸 输入直播间数字房间号即可连接，无需任何密钥
-                </div>
-
+                <div class="field-hint" id="biliHint">🌸 输入直播间数字房间号即可连接，无需任何密钥</div>
                 <details class="key-hint mt-10">
                   <summary>🍪 可选：SESSDATA（弹幕用户名去打码）</summary>
                   <div class="key-hint-body">
-                    <p>
-                      不填时弹幕用户名可能显示为 <strong>***</strong>。填写你的
-                      <code>SESSDATA</code> cookie 后可显示真实用户名。
-                    </p>
-                    <p>
-                      获取：浏览器打开 bilibili.com → F12 → Application →
-                      Cookies → <code>SESSDATA</code> (不要打开显示已解码的URL)
-                      <br />
-                      <hr/>
-                      <img
-                        src="../static/sessdata_tips.png"
-                        alt="不要打开显示已解码的URL"
-                      />
+                    <p>不填时弹幕用户名可能显示为 <strong>***</strong>。填写你的 <code>SESSDATA</code> cookie 后可显示真实用户名。</p>
+                    <p>获取：浏览器打开 bilibili.com → F12 → Application → Cookies → <code>SESSDATA</code> (不要打开显示已解码的URL)<br /><hr/>
+                      <img src="../static/sessdata_tips.png" alt="不要打开显示已解码的URL" />
                     </p>
                     <div class="input-row mt-6">
-                      <input
-                        type="password"
-                        id="sessdataInput"
-                        class="input"
-                        placeholder="粘贴 SESSDATA 值（可选）"
-                      />
-                      <button
-                        class="btn btn-sm btn-primary"
-                        id="btnSaveSessdata"
-                      >
-                        保存
-                      </button>
+                      <input type="password" id="sessdataInput" class="input" placeholder="粘贴 SESSDATA 值（可选）" />
+                      <button class="btn btn-sm btn-primary" id="btnSaveSessdata">保存</button>
                     </div>
-                    <div class="field-hint" id="sessdataHint">
-                      仅存于本机内存，不上传。重新连接后生效。
-                    </div>
+                    <div class="field-hint" id="sessdataHint">仅存于本机内存，不上传。重新连接后生效。</div>
                   </div>
                 </details>
               </div>
             </div>
-
             <!-- 郊狼卡片 -->
             <div class="card">
               <div class="card-header">
@@ -126,25 +107,10 @@
               <div class="card-body">
                 <label class="field-label">WebSocket 服务地址</label>
                 <div class="input-row">
-                  <input
-                    type="text"
-                    id="wsHostInput"
-                    class="input"
-                    placeholder="localhost 或局域网IP"
-                  />
-                  <input
-                    type="text"
-                    id="wsPortInput"
-                    class="input input-sm"
-                    value="9999"
-                  />
+                  <input type="text" id="wsHostInput" class="input" placeholder="localhost 或局域网IP" />
+                  <input type="text" id="wsPortInput" class="input input-sm" value="9999" />
                 </div>
-                <button
-                  class="btn btn-blue full-width mt-8"
-                  id="btnDglabConnect"
-                >
-                  📱 生成配对二维码
-                </button>
+                <button class="btn btn-blue full-width mt-8" id="btnDglabConnect">📱 生成配对二维码</button>
               </div>
             </div>
           </div>
@@ -155,12 +121,8 @@
               <div class="card-header">
                 <div class="card-icon dg-icon">📷</div>
                 <span class="card-title">用郊狼 APP 扫描配对</span>
-                <span class="badge badge-warn" id="qrStatusBadge"
-                  >等待扫描</span
-                >
-                <button class="btn btn-ghost btn-sm" id="btnRefreshQR">
-                  🔄 刷新
-                </button>
+                <span class="badge badge-warn" id="qrStatusBadge">等待扫描</span>
+                <button class="btn btn-ghost btn-sm" id="btnRefreshQR">🔄 刷新</button>
               </div>
               <div class="card-body qr-body">
                 <div class="qr-frame">
@@ -176,8 +138,7 @@
                   <div class="qr-url" id="qrUrl">生成中...</div>
                   <div class="field-hint">
                     🌐 确保手机与本机在同一局域网，或填写公网 IP<br />
-                    💡 本地调试用 <code>localhost</code>，外网用公网 IP
-                    或内网穿透地址
+                    💡 本地调试用 <code>localhost</code>，外网用公网 IP 或内网穿透地址
                   </div>
                 </div>
               </div>
@@ -187,30 +148,22 @@
           <!-- 状态总览 -->
           <div class="status-panel">
             <div class="status-card" id="scBili">
-              <div class="sc-top">
-                <span class="sc-emoji">🎥</span><span class="sc-dot"></span>
-              </div>
+              <div class="sc-top"><span class="sc-emoji">🎥</span><span class="sc-dot"></span></div>
               <div class="sc-label">B站直播间</div>
               <div class="sc-val" id="scValBili">—</div>
             </div>
             <div class="status-card" id="scWs">
-              <div class="sc-top">
-                <span class="sc-emoji">🔌</span><span class="sc-dot"></span>
-              </div>
+              <div class="sc-top"><span class="sc-emoji">🔌</span><span class="sc-dot"></span></div>
               <div class="sc-label">WebSocket 服务</div>
               <div class="sc-val" id="scValWs">ws://localhost:9999</div>
             </div>
             <div class="status-card" id="scDg">
-              <div class="sc-top">
-                <span class="sc-emoji">⚡</span><span class="sc-dot"></span>
-              </div>
+              <div class="sc-top"><span class="sc-emoji">⚡</span><span class="sc-dot"></span></div>
               <div class="sc-label">郊狼 APP</div>
               <div class="sc-val" id="scValDg">等待扫码</div>
             </div>
             <div class="status-card" id="scRule">
-              <div class="sc-top">
-                <span class="sc-emoji">🌸</span><span class="sc-dot"></span>
-              </div>
+              <div class="sc-top"><span class="sc-emoji">🌸</span><span class="sc-dot"></span></div>
               <div class="sc-label">规则引擎</div>
               <div class="sc-val" id="scValRule">—</div>
             </div>
@@ -227,22 +180,103 @@
                 <span class="toggle-track"></span>
                 <span>启用规则</span>
               </label>
-              <button class="btn btn-ghost btn-sm" id="btnAddRule">
-                ✨ 添加规则
-              </button>
-              <button class="btn btn-primary btn-sm" id="btnSaveRules">
-                💾 保存
-              </button>
+              <button class="btn btn-ghost btn-sm" id="btnAddRule">✨ 添加规则</button>
+              <button class="btn btn-primary btn-sm" id="btnSaveRules">💾 保存</button>
             </div>
           </div>
-          <div class="rules-hint">
-            当 B站直播间触发事件（礼物、上舰、SC）时，匹配的规则将自动向郊狼 APP
-            发送控制指令
-          </div>
+          <div class="rules-hint">当 B站直播间触发事件（礼物、上舰、SC）时，匹配的规则将自动向郊狼 APP 发送控制指令</div>
           <div id="rulesContainer" class="rules-list">
             <div class="empty-state">
               <div class="empty-icon">🌸</div>
               <div class="empty-text">正在加载规则...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ 模式页 ══ -->
+        <section id="page-modes" class="page">
+          <div class="page-title">模式选择</div>
+          <div class="modes-hint">选择一个预设模式快速应用规则，或点击「自定义」打造专属配置</div>
+
+          <div class="modes-grid" id="modesGrid">
+            <!-- 渲染由 JS 负责 -->
+          </div>
+
+          <!-- 自定义模式编辑器 -->
+          <div id="customModeSection" style="display:none">
+            <div class="card mt-16">
+              <div class="card-header">
+                <div class="card-icon" style="background:linear-gradient(135deg,#c084fc,#5bc8f5);color:white;font-size:16px;">✏️</div>
+                <span class="card-title">自定义模式</span>
+                <button class="btn btn-ghost btn-sm" id="btnCloseCM">✕ 关闭</button>
+              </div>
+              <div class="card-body">
+                <div class="cm-grid">
+                  <div class="cm-row">
+                    <div class="cm-label">🎁 礼物触发（金瓜子）</div>
+                    <div class="cm-controls">
+                      <label class="toggle-label"><input type="checkbox" id="cmGiftEnable" checked><span class="toggle-track"></span><span>启用</span></label>
+                      <span class="field-label" style="margin:0;white-space:nowrap">最低金额</span>
+                      <input type="number" id="cmGiftMin" class="input input-sm" value="500" min="1" style="width:80px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">强度</span>
+                      <input type="number" id="cmGiftStrength" class="input input-sm" value="30" min="0" max="200" style="width:65px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">持续(s)</span>
+                      <input type="number" id="cmGiftDuration" class="input input-sm" value="3" min="1" max="60" style="width:58px;flex:none">
+                      <select id="cmGiftPreset" class="input" style="width:90px;flex:none">
+                        <option value="light">轻柔</option><option value="rhythm" selected>节奏</option><option value="wave">波浪</option><option value="pulse">脉冲</option><option value="intense">强烈</option><option value="extreme">极端</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="cm-row">
+                    <div class="cm-label">⚓ 舰长触发</div>
+                    <div class="cm-controls">
+                      <label class="toggle-label"><input type="checkbox" id="cmGuardEnable" checked><span class="toggle-track"></span><span>启用</span></label>
+                      <span class="field-label" style="margin:0;white-space:nowrap">强度</span>
+                      <input type="number" id="cmGuardStrength" class="input input-sm" value="60" min="0" max="200" style="width:65px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">持续(s)</span>
+                      <input type="number" id="cmGuardDuration" class="input input-sm" value="8" min="1" max="60" style="width:58px;flex:none">
+                      <select id="cmGuardPreset" class="input" style="width:90px;flex:none">
+                        <option value="light">轻柔</option><option value="rhythm">节奏</option><option value="wave" selected>波浪</option><option value="pulse">脉冲</option><option value="intense">强烈</option><option value="extreme">极端</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="cm-row">
+                    <div class="cm-label">💬 SC 触发</div>
+                    <div class="cm-controls">
+                      <label class="toggle-label"><input type="checkbox" id="cmSCEnable" checked><span class="toggle-track"></span><span>启用</span></label>
+                      <span class="field-label" style="margin:0;white-space:nowrap">最低(¥)</span>
+                      <input type="number" id="cmSCMin" class="input input-sm" value="30" min="1" style="width:80px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">强度</span>
+                      <input type="number" id="cmSCStrength" class="input input-sm" value="50" min="0" max="200" style="width:65px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">持续(s)</span>
+                      <input type="number" id="cmSCDuration" class="input input-sm" value="10" min="1" max="60" style="width:58px;flex:none">
+                      <select id="cmSCPreset" class="input" style="width:90px;flex:none">
+                        <option value="light">轻柔</option><option value="rhythm">节奏</option><option value="wave">波浪</option><option value="pulse" selected>脉冲</option><option value="intense">强烈</option><option value="extreme">极端</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="cm-row">
+                    <div class="cm-label">💬 弹幕关键词</div>
+                    <div class="cm-controls">
+                      <label class="toggle-label"><input type="checkbox" id="cmDanmakuEnable"><span class="toggle-track"></span><span>启用</span></label>
+                      <span class="field-label" style="margin:0;white-space:nowrap">关键词</span>
+                      <input type="text" id="cmDanmakuKeyword" class="input" placeholder="如: 电击" style="width:100px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">强度</span>
+                      <input type="number" id="cmDanmakuStrength" class="input input-sm" value="20" min="0" max="200" style="width:65px;flex:none">
+                      <span class="field-label" style="margin:0;white-space:nowrap">持续(s)</span>
+                      <input type="number" id="cmDanmakuDuration" class="input input-sm" value="2" min="1" max="60" style="width:58px;flex:none">
+                      <select id="cmDanmakuPreset" class="input" style="width:90px;flex:none">
+                        <option value="light" selected>轻柔</option><option value="rhythm">节奏</option><option value="wave">波浪</option><option value="pulse">脉冲</option><option value="intense">强烈</option><option value="extreme">极端</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="cm-actions mt-16">
+                  <input type="text" id="cmName" class="input" placeholder="为此配置命名（如：温柔模式）" style="flex:1;max-width:280px">
+                  <button class="btn btn-primary" id="btnApplyCM">✅ 应用到规则</button>
+                  <button class="btn btn-ghost" id="btnSaveCMPreset">💾 另存为预设</button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -259,50 +293,15 @@
               </div>
               <div class="card-body">
                 <div style="padding: 6px 0">
-                  <input
-                    type="range"
-                    class="strength-slider"
-                    id="sliderA"
-                    min="0"
-                    max="200"
-                    value="0"
-                  />
-                  <div class="strength-marks">
-                    <span>0</span><span>50</span><span>100</span><span>150</span
-                    ><span>200</span>
-                  </div>
+                  <input type="range" class="strength-slider" id="sliderA" min="0" max="200" value="0" />
+                  <div class="strength-marks"><span>0</span><span>50</span><span>100</span><span>150</span><span>200</span></div>
                 </div>
                 <div class="ctrl-btns">
-                  <button
-                    class="btn btn-sm btn-danger"
-                    onclick="App.setStrength(1, 0)"
-                  >
-                    归零 🚫
-                  </button>
-                  <button
-                    class="btn btn-sm"
-                    onclick="App.adjustStrength(1, -5)"
-                  >
-                    −5
-                  </button>
-                  <button
-                    class="btn btn-sm"
-                    onclick="App.adjustStrength(1, -1)"
-                  >
-                    −1
-                  </button>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    onclick="App.adjustStrength(1, 1)"
-                  >
-                    +1
-                  </button>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    onclick="App.adjustStrength(1, 5)"
-                  >
-                    +5
-                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="App.setStrength(1, 0)">归零 🚫</button>
+                  <button class="btn btn-sm" onclick="App.adjustStrength(1, -5)">−5</button>
+                  <button class="btn btn-sm" onclick="App.adjustStrength(1, -1)">−1</button>
+                  <button class="btn btn-sm btn-primary" onclick="App.adjustStrength(1, 1)">+1</button>
+                  <button class="btn btn-sm btn-primary" onclick="App.adjustStrength(1, 5)">+5</button>
                 </div>
               </div>
             </div>
@@ -314,109 +313,40 @@
               </div>
               <div class="card-body">
                 <div style="padding: 6px 0">
-                  <input
-                    type="range"
-                    class="strength-slider"
-                    id="sliderB"
-                    min="0"
-                    max="200"
-                    value="0"
-                  />
-                  <div class="strength-marks">
-                    <span>0</span><span>50</span><span>100</span><span>150</span
-                    ><span>200</span>
-                  </div>
+                  <input type="range" class="strength-slider" id="sliderB" min="0" max="200" value="0" />
+                  <div class="strength-marks"><span>0</span><span>50</span><span>100</span><span>150</span><span>200</span></div>
                 </div>
                 <div class="ctrl-btns">
-                  <button
-                    class="btn btn-sm btn-danger"
-                    onclick="App.setStrength(2, 0)"
-                  >
-                    归零 🚫
-                  </button>
-                  <button
-                    class="btn btn-sm"
-                    onclick="App.adjustStrength(2, -5)"
-                  >
-                    −5
-                  </button>
-                  <button
-                    class="btn btn-sm"
-                    onclick="App.adjustStrength(2, -1)"
-                  >
-                    −1
-                  </button>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    onclick="App.adjustStrength(2, 1)"
-                  >
-                    +1
-                  </button>
-                  <button
-                    class="btn btn-sm btn-primary"
-                    onclick="App.adjustStrength(2, 5)"
-                  >
-                    +5
-                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="App.setStrength(2, 0)">归零 🚫</button>
+                  <button class="btn btn-sm" onclick="App.adjustStrength(2, -5)">−5</button>
+                  <button class="btn btn-sm" onclick="App.adjustStrength(2, -1)">−1</button>
+                  <button class="btn btn-sm btn-primary" onclick="App.adjustStrength(2, 1)">+1</button>
+                  <button class="btn btn-sm btn-primary" onclick="App.adjustStrength(2, 5)">+5</button>
                 </div>
               </div>
             </div>
           </div>
           <div class="card mt-16">
             <div class="card-header">
-              <div
-                class="card-icon"
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    var(--purple),
-                    var(--blue)
-                  );
-                  color: white;
-                  box-shadow: 0 3px 8px rgba(192, 132, 252, 0.35);
-                "
-              >
-                🎵
-              </div>
+              <div class="card-icon" style="background:linear-gradient(135deg,var(--purple),var(--blue));color:white;box-shadow:0 3px 8px rgba(192,132,252,0.35)">🎵</div>
               <span class="card-title">波形预设</span>
               <span class="badge">A 通道</span>
             </div>
             <div class="card-body">
               <div class="preset-grid">
-                <button class="preset-btn" data-preset="light" data-ch="A">
-                  <span class="p-icon">💤</span><span class="p-name">轻柔</span>
-                </button>
-                <button class="preset-btn" data-preset="rhythm" data-ch="A">
-                  <span class="p-icon">🎵</span><span class="p-name">节奏</span>
-                </button>
-                <button class="preset-btn" data-preset="wave" data-ch="A">
-                  <span class="p-icon">🌊</span><span class="p-name">波浪</span>
-                </button>
-                <button class="preset-btn" data-preset="pulse" data-ch="A">
-                  <span class="p-icon">💥</span><span class="p-name">脉冲</span>
-                </button>
-                <button class="preset-btn" data-preset="intense" data-ch="A">
-                  <span class="p-icon">⚡</span><span class="p-name">强烈</span>
-                </button>
-                <button class="preset-btn" data-preset="extreme" data-ch="A">
-                  <span class="p-icon">🔥</span><span class="p-name">极端</span>
-                </button>
+                <button class="preset-btn" data-preset="light" data-ch="A"><span class="p-icon">💤</span><span class="p-name">轻柔</span></button>
+                <button class="preset-btn" data-preset="rhythm" data-ch="A"><span class="p-icon">🎵</span><span class="p-name">节奏</span></button>
+                <button class="preset-btn" data-preset="wave" data-ch="A"><span class="p-icon">🌊</span><span class="p-name">波浪</span></button>
+                <button class="preset-btn" data-preset="pulse" data-ch="A"><span class="p-icon">💥</span><span class="p-name">脉冲</span></button>
+                <button class="preset-btn" data-preset="intense" data-ch="A"><span class="p-icon">⚡</span><span class="p-name">强烈</span></button>
+                <button class="preset-btn" data-preset="extreme" data-ch="A"><span class="p-icon">🔥</span><span class="p-name">极端</span></button>
               </div>
               <div class="duration-row">
                 <span class="field-label" style="margin: 0">持续时间</span>
-                <input
-                  type="number"
-                  id="presetDuration"
-                  class="input input-sm"
-                  value="5"
-                  min="1"
-                  max="60"
-                />
+                <input type="number" id="presetDuration" class="input input-sm" value="5" min="1" max="60" />
                 <span class="field-hint" style="margin: 0">秒</span>
                 <div style="flex: 1"></div>
-                <button class="btn btn-danger btn-sm" id="btnClearAll">
-                  🚫 清空所有队列
-                </button>
+                <button class="btn btn-danger btn-sm" id="btnClearAll">🚫 清空所有队列</button>
               </div>
             </div>
           </div>
@@ -427,15 +357,97 @@
           <div class="page-header-row">
             <div class="page-title">事件日志</div>
             <div class="page-actions">
-              <button class="btn btn-ghost btn-sm" id="btnClearLog">
-                🗑️ 清空
-              </button>
+              <button class="btn btn-ghost btn-sm" id="btnClearLog">🗑️ 清空</button>
             </div>
           </div>
           <div id="logContainer" class="log-list">
             <div class="empty-state">
               <div class="empty-icon">🌸</div>
               <div class="empty-text">连接直播间后，事件将显示在这里</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══ OBS 页 ══ -->
+        <section id="page-obs" class="page">
+          <div class="page-title">OBS 网页捕获</div>
+          <div class="obs-hint">在 OBS 中添加「浏览器来源」，将下方 URL 填入后即可实时显示郊狼状态覆盖层</div>
+
+          <div class="card mt-16">
+            <div class="card-header">
+              <div class="card-icon" style="background:linear-gradient(135deg,#ff6eb4,#c084fc);color:white;">📺</div>
+              <span class="card-title">OBS 浏览器源 URL</span>
+            </div>
+            <div class="card-body">
+              <div class="input-row">
+                <input type="text" id="obsUrlInput" class="input" readonly value="http://localhost:9998/obs" />
+                <button class="btn btn-primary" id="btnCopyObsUrl">📋 复制</button>
+                <button class="btn btn-blue" id="btnOpenObsPreview">🔗 浏览器预览</button>
+              </div>
+              <div class="field-hint mt-8">OBS → 来源 → + → 浏览器 → URL 粘贴此地址。建议尺寸：宽 400px，高 220px，背景透明</div>
+            </div>
+          </div>
+
+          <!-- 主题选择 -->
+          <div class="card mt-16">
+            <div class="card-header">
+              <div class="card-icon" style="background:linear-gradient(135deg,#5bc8f5,#4ade80);color:white;">🎨</div>
+              <span class="card-title">覆盖层主题</span>
+            </div>
+            <div class="card-body">
+              <div class="obs-themes">
+                <button class="obs-theme-btn active" data-theme="default">
+                  <div class="theme-preview tp-default"><span>粉色</span></div>
+                  <span>默认</span>
+                </button>
+                <button class="obs-theme-btn" data-theme="dark">
+                  <div class="theme-preview tp-dark"><span>暗黑</span></div>
+                  <span>暗黑</span>
+                </button>
+                <button class="obs-theme-btn" data-theme="neon">
+                  <div class="theme-preview tp-neon"><span>霓虹</span></div>
+                  <span>霓虹</span>
+                </button>
+                <button class="obs-theme-btn" data-theme="minimal">
+                  <div class="theme-preview tp-minimal"><span>极简</span></div>
+                  <span>极简</span>
+                </button>
+              </div>
+              <div class="field-hint mt-8">所选主题会同步应用到 OBS 覆盖页</div>
+            </div>
+          </div>
+
+          <!-- 实时预览 -->
+          <div class="card mt-16">
+            <div class="card-header">
+              <div class="card-icon" style="background:linear-gradient(135deg,#fbbf24,#fb7185);color:white;">👁️</div>
+              <span class="card-title">实时预览</span>
+              <span class="badge" style="background:var(--yellow-dim);color:#92400e;border-color:#fde68a">实时数据</span>
+            </div>
+            <div class="card-body">
+              <div class="obs-preview-frame">
+                <div class="obs-overlay" id="obsOverlayPreview" data-theme="default">
+                  <div class="obs-header">
+                    <span class="obs-logo">⚡ DG-LAB BiliLive</span>
+                    <span class="obs-conn-status" id="obsConnStatus">● 未连接</span>
+                  </div>
+                  <div class="obs-body">
+                    <div class="obs-channel">
+                      <div class="obs-ch-label">A</div>
+                      <div class="obs-ch-bar-wrap"><div class="obs-ch-bar" id="obsBarA" style="width:0%"></div></div>
+                      <div class="obs-ch-val" id="obsValA">0</div>
+                    </div>
+                    <div class="obs-channel">
+                      <div class="obs-ch-label">B</div>
+                      <div class="obs-ch-bar-wrap"><div class="obs-ch-bar obs-ch-bar-b" id="obsBarB" style="width:0%"></div></div>
+                      <div class="obs-ch-val" id="obsValB">0</div>
+                    </div>
+                    <div class="obs-event-feed" id="obsEventFeed">
+                      <div class="obs-event-item obs-event-empty">等待事件...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

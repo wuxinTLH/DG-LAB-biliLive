@@ -1,216 +1,199 @@
-# 🌸 Coyote Live
+# ⚡ DG-BiLive
+## 全称 DG-LAB BiliLive
+**B站直播间 × 郊狼 DG-LAB 联动控制器**
+**Version : 0.0.1v-test**
 
-> B站直播 × 郊狼 DG-LAB 3.0 联动控制器
-> 礼物、舰长、SC → 自动触发脉冲波形 ⚡
+让观众的礼物、上舰、SC 直接驱动郊狼设备，打造全新的直播互动体验。
 
-![UI Preview](docs/preview.png)
+![Electron](https://img.shields.io/badge/Electron-29+-blue?logo=electron)
+![Node](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 
 ---
 
 ## ✨ 功能特性
 
-- 🎥 **B站直播间实时监听** — 礼物、上舰（舰长/提督/总督）、醒目留言（SC）、弹幕
-- ⚡ **郊狼 DG-LAB 3.0 控制** — 基于官方 Socket V2 WebSocket 协议
-- 🌸 **可视化规则引擎** — 事件触发 → 强度设置 + 波形预设，可自由配置
-- 📱 **二维码配对** — 扫码即连，无需手动填写地址
-- 🎛️ **手动控制面板** — 滑块调强度，6 种波形一键发送
-- 📋 **实时事件日志** — 所有触发事件与执行动作可追溯
-- 🖥️ **Electron 桌面应用** — 单窗口，跨平台（Windows / macOS / Linux）
+- 🔌 **B站直播间无密钥连接** — 只需直播间房间号，即可监听礼物、上舰、SC、弹幕事件
+- ⚡ **郊狼 DG-LAB 3.0 联动** — 通过 WebSocket 与郊狼 APP 配对，支持强度控制和波形发送
+- 🎮 **多模式切换** — 内置温柔、标准、极端、弹幕互动、双通道五大预设模式，一键应用
+- ✏️ **自定义模式** — 自由配置每个触发事件的强度、波形、持续时间，可另存为专属预设
+- ⚙️ **灵活规则引擎** — 支持按礼物金额、上舰等级、SC 价格、弹幕关键词灵活配置触发规则
+- 📺 **OBS 网页捕获支持** — 内置 OBS 覆盖层页面，实时展示通道强度和直播事件，4 套主题可选
+- 🎛️ **手动控制面板** — 实时调整 A/B 双通道强度，支持 6 种波形预设手动触发
+- 📋 **事件日志** — 实时记录直播间事件及设备动作，便于调试和回溯
 
 ---
 
-## 🚀 快速开始
+## 🖥️ 截图预览
+
+> 应用使用蓝粉紫可爱风格 UI，支持 Windows 自定义标题栏（含关闭/最小化/最大化按钮）
+
+---
+
+## 📦 安装与运行
 
 ### 环境要求
 
-| 工具 | 版本要求 |
-|------|---------|
-| Node.js | ≥ 18.0 |
-| npm | ≥ 9.0 |
-| Git | 任意版本 |
+- Node.js 18+
+- 郊狼 DG-LAB APP（iOS / Android）
+- B站直播间（任意公开房间）
 
-### 1. 克隆项目
+### 快速开始
 
 ```bash
-git clone https://github.com/你的用户名/coyote-live.git
-cd coyote-live
-```
+# 克隆仓库
+git clone https://github.com/wuxinTLH/DG-LAB-biliLive.git
+cd DG-LAB-biliLive
 
-### 2. 安装依赖
-
-```bash
+# 安装依赖
 npm install
-```
 
-### 3. 配置环境变量（可选）
+# 测试启动
+npm run start
 
-```bash
-cp .env.example .env
-# 根据需要修改端口等配置
-```
-
-### 4. 启动开发环境（单条命令）
-
-```bash
-npm start
-# 或
+# 开发模式启动
 npm run dev
 ```
 
-> 此命令会同时启动：
-> - **Node 后端服务**（端口 9998 API + 9999 WebSocket）
-> - **Electron 前端窗口**（等待服务就绪后自动打开）
-
----
-
-## 📁 项目结构
-
-```
-coyote-live/
-├── .vscode/
-│   ├── launch.json          # VSCode 调试配置（F5 一键启动）
-│   ├── settings.json        # 编辑器设置
-│   └── extensions.json      # 推荐插件
-│
-├── server/                  # Node.js 后端
-│   ├── index.js             # 服务入口（启动 HTTP API + WS 服务）
-│   ├── api.js               # HTTP REST API 路由
-│   ├── bilibili/
-│   │   ├── connector.js     # B站直播间 WebSocket 连接
-│   │   └── ruleEngine.js    # 事件→动作规则引擎
-│   ├── dglab/
-│   │   ├── wsServer.js      # DG-LAB WebSocket 服务器
-│   │   ├── connectionManager.js  # 连接与配对管理
-│   │   ├── messageHandler.js     # 消息处理与协议转换
-│   │   ├── controller.js         # 向APP发送指令的控制器
-│   │   └── wavePresets.js        # 波形预设库
-│   └── utils/
-│       └── logger.js        # Winston 日志
-│
-├── src/
-│   ├── main/
-│   │   └── index.js         # Electron 主进程
-│   ├── preload/
-│   │   └── index.js         # Electron preload 桥接
-│   └── renderer/
-│       ├── index.html       # 主界面 HTML
-│       ├── style.css        # 蓝粉白可爱风格 CSS
-│       └── app.js           # 前端交互逻辑
-│
-├── .env.example             # 环境变量模板
-├── package.json             # 依赖与脚本配置
-└── README.md
-```
-
----
-
-## 🎮 使用方法
-
-### 第一步：连接 B站直播间
-
-1. 切换到「**连接**」页
-2. 在「B站直播间」卡片中输入房间号
-3. 点击「**连接**」
-
-### 第二步：连接郊狼 APP
-
-1. 确认「服务地址」填写正确（同局域网用 `localhost`，外网用公网 IP）
-2. 点击「**📱 生成配对二维码**」
-3. 打开郊狼 APP → SOCKET 功能 → 扫描二维码
-4. 配对成功后顶部状态栏显示「郊狼 已连接 💕」
-
-### 第三步：配置规则
-
-1. 切换到「**规则**」页
-2. 默认已预设舰长、SC、礼物等常见规则
-3. 可通过开关单独启用/禁用每条规则
-4. 修改后点击「**💾 保存**」
-
-### 第四步：开始直播！
-
-事件触发时，「**日志**」页会实时显示，郊狼会自动响应。
-
----
-
-## 🛠️ VSCode 调试
-
-打开项目后按 `F5`，在弹出的调试配置中选择：
-
-| 配置名 | 说明 |
-|--------|------|
-| 🌸 启动完整应用 | 同时启动 Server + Electron（推荐） |
-| 🔌 仅启动 Node 服务端 | 单独调试后端，支持断点 |
-| ⚡ 仅启动 Electron | 单独启动前端窗口 |
-
----
-
-## 📦 构建打包
+### 打包构建
 
 ```bash
-# 构建当前平台安装包
+# 构建为可执行文件（Windows: .exe, macOS: .dmg, Linux: .AppImage）
 npm run build
-
-# 输出目录：dist/
-# Windows → dist/*.exe (NSIS 安装器)
-# macOS   → dist/*.dmg
-# Linux   → dist/*.AppImage
 ```
 
 ---
 
-## ⚙️ 环境变量说明
+## 🚀 使用说明
 
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `DGLAB_WS_PORT` | `9999` | 郊狼 WebSocket 服务端口 |
-| `APP_API_PORT` | `9998` | HTTP API 服务端口（供 Electron 调用） |
-| `HEARTBEAT_INTERVAL` | `60000` | 心跳间隔（毫秒） |
-| `DEFAULT_PUNISHMENT_TIME` | `1` | 波形发送频率（次/秒） |
-| `DEFAULT_PUNISHMENT_DURATION` | `5` | 波形默认持续时长（秒） |
-| `LOG_LEVEL` | `info` | 日志级别（debug/info/warn/error） |
+### 1. 连接 B站直播间
 
----
+1. 在「连接」页面输入直播间数字房间号（如 `1945098`）
+2. 点击「连接」按钮
+3. 可选填写 `SESSDATA` Cookie 以显示弹幕用户真实名称
 
-## 🌸 波形预设说明
+### 2. 配对郊狼设备
 
-| 预设名 | 特征 | 适合场景 |
-|--------|------|---------|
-| `light` 💤 | 低频低强度，轻柔 | 弹幕、小额礼物 |
-| `rhythm` 🎵 | 中频节律，有节奏感 | 普通礼物、舰长 |
-| `wave` 🌊 | 渐强渐弱波浪 | SC |
-| `pulse` 💥 | 间歇脉冲 | 提督 |
-| `intense` ⚡ | 高强度连续 | 总督 |
-| `extreme` 🔥 | 极高强度 | 特殊事件 |
+1. 填写本机 IP 地址（外网需填公网 IP 或内网穿透地址）
+2. 点击「生成配对二维码」
+3. 打开郊狼 APP，扫描二维码完成配对
 
----
+### 3. 选择触发模式
 
-## ⚠️ 安全说明
+前往「模式」页，选择预设模式或自定义：
 
-- 强度值范围 `0~200`，**请从低值（≤ 20）开始测试**
-- 程序异常时会尝试将强度归零，但建议在 APP 内也设置上限
-- 本项目仅供成年人个人娱乐使用
-- 遵守 [DG-LAB 开源协议](https://github.com/DG-LAB-OPENSOURCE/DG-LAB-OPENSOURCE) 相关条款，**禁止商业用途**
+| 模式       | 说明                                 |
+| ---------- | ------------------------------------ |
+| 💕 温柔模式 | 低强度轻柔反馈，适合新手或长时间直播 |
+| ⚡ 标准模式 | 中等强度节奏感反馈，适合日常互动直播 |
+| 🔥 极端模式 | 高强度激烈反馈，适合勇于挑战的主播   |
+| 💬 弹幕互动 | 以弹幕关键词触发为主，让观众直接控制 |
+| 🎛️ 双通道   | A/B 双通道分别响应不同事件           |
+| ✏️ 自定义   | 完全自由配置，支持保存为专属预设     |
 
----
+### 4. 配置 OBS 覆盖层
 
-## 🔧 常见问题
-
-**Q: 二维码扫描后提示无法连接？**
-> A: 确认手机和电脑在同一局域网，或将服务地址填写为电脑的局域网 IP（如 `192.168.1.x`）而非 `localhost`
-
-**Q: B站连接后没有事件？**
-> A: 确认直播间号正确，且直播间正在直播中；测试时可在直播间发一条弹幕验证
-
-**Q: Electron 窗口打开但界面空白？**
-> A: 通常是后端服务未启动。检查终端中 SERVER 日志是否有报错，确认 9998/9999 端口未被占用
-
-**Q: 强度设置后郊狼没有反应？**
-> A: 检查「连接」页顶部状态，确认「郊狼 APP」显示已配对；同时确认 APP 内强度上限不为 0
+1. 前往「OBS」页面，复制浏览器源 URL
+2. 在 OBS 中：来源 → `+` → 浏览器 → 粘贴 URL
+3. 推荐尺寸：宽 `400px`，高 `220px`，勾选透明背景
+4. 在 OBS 页可选择 4 种主题：默认粉、暗黑、霓虹、极简
 
 ---
 
-## 📮 技术支持
+## ⚙️ 高级配置
 
-- DG-LAB 开源协议技术咨询 QQ：3849540080
-- B站弹幕库：[bilibili-live-ws](https://github.com/simon300000/bilibili-live-ws)
-- DG-LAB 开源仓库：[DG-LAB-OPENSOURCE](https://github.com/DG-LAB-OPENSOURCE/DG-LAB-OPENSOURCE)
+### 环境变量
+
+在项目根目录创建 `.env` 文件：
+
+```env
+# 郊狼 WebSocket 端口（默认 9999）
+DGLAB_WS_PORT=9999
+
+# HTTP API 端口（默认 9998）
+APP_API_PORT=9998
+
+# 可选(建议填写)：B站 SESSDATA（也可在 UI 中动态填写）
+BILI_SESSDATA=your_sessdata_here
+如果没有填写SESSDATA，则无法显示弹幕或礼物的用户真实名称
+温馨提醒：SESSDATA 是 B站用户登录凭证，请勿泄露给他人
+```
+
+### API 接口
+
+应用内置 HTTP API（默认 `http://localhost:9998/api`）：
+
+| 方法   | 路径               | 说明                                                      |
+| ------ | ------------------ | --------------------------------------------------------- |
+| `GET`  | `/status`          | 获取全局状态                                              |
+| `POST` | `/bili/connect`    | 连接直播间                                                |
+| `POST` | `/bili/disconnect` | 断开直播间                                                |
+| `GET`  | `/rules`           | 获取规则列表                                              |
+| `PUT`  | `/rules`           | 更新规则列表                                              |
+| `POST` | `/dglab/strength`  | 设置通道强度                                              |
+| `POST` | `/dglab/pulse`     | 发送波形预设                                              |
+| `GET`  | `/events`          | 获取事件日志                                              |
+| `GET`  | `/obs`             | OBS 覆盖层页面（支持 `?theme=default/dark/neon/minimal`） |
+
+---
+
+## 🌊 波形预设
+
+| 预设   | 说明                     |
+| ------ | ------------------------ |
+| 💤 轻柔 | 低频低强度，适合入门     |
+| 🎵 节奏 | 中频节律感，适合礼物触发 |
+| 🌊 波浪 | 渐强渐弱，平滑过渡       |
+| 💥 脉冲 | 间歇式强烈刺激           |
+| ⚡ 强烈 | 高强度节律               |
+| 🔥 极端 | 最高强度，慎用           |
+
+---
+
+## 📂 项目结构
+
+```
+DG-LAB-biliLive/
+├── src/
+│   ├── main/          # Electron 主进程
+│   ├── preload/       # 预加载脚本（IPC 桥接）
+│   └── renderer/      # 前端 UI（HTML + CSS + JS）
+├── server/
+│   ├── api.js         # HTTP API 路由（含 OBS 覆盖层）
+│   ├── bilibili/      # B站直播连接 & 规则引擎
+│   ├── dglab/         # 郊狼控制器 & 波形预设
+│   └── utils/         # 日志工具
+└── package.json
+```
+
+---
+
+## 🔧 技术栈
+
+- **前端**：原生 HTML / CSS / JavaScript（无框架）
+- **桌面**：Electron 29
+- **服务端**：Node.js + Express
+- **B站连接**：[bilibili-live-ws](https://github.com/simon300000/bilibili-live-ws)
+- **WebSocket**：ws
+- **二维码**：qrcode
+
+---
+
+## ⚠️ 注意事项
+
+1. 郊狼设备强度请从低档开始，逐步调整，注意人身安全
+2. 极端模式强度较高，建议熟悉设备后再使用
+3. SESSDATA 仅存于本机内存，不会上传至任何服务器
+4. 使用外网连接时，请确保 WebSocket 端口已正确映射或使用内网穿透工具
+
+---
+
+## 📄 许可证
+
+MIT License
+
+二次开发或转载标注原作者信息(或仓库)即可
+
+---
+
+> 💕 如有问题或建议，欢迎提 Issue
