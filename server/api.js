@@ -111,14 +111,27 @@ function createApiRouter() {
   });
 
   router.post("/dglab/clear", (req, res) => {
-    dgController.clearChannel("A");
-    dgController.clearChannel("B");
+    const { channel } = req.body;
+    if (channel === "A") dgController.clearChannel("A");
+    else if (channel === "B") dgController.clearChannel("B");
+    else {
+      dgController.clearChannel("A");
+      dgController.clearChannel("B");
+    }
     res.json({ ok: true });
   });
 
   router.post("/dglab/pulse", (req, res) => {
     const { channel, preset, duration } = req.body;
-    dgController.sendPreset(channel || "A", preset || "rhythm", duration || 5);
+    const ch = channel || "A";
+    const pre = preset || "rhythm";
+    const dur = duration || 5;
+    if (ch === "AB") {
+      dgController.sendPreset("A", pre, dur);
+      dgController.sendPreset("B", pre, dur);
+    } else {
+      dgController.sendPreset(ch, pre, dur);
+    }
     res.json({ ok: true });
   });
 

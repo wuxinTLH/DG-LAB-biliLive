@@ -423,13 +423,24 @@ const App = (() => {
       });
     });
 
-    // 波形预设
+    // 波形预设 - 通道选择 tab
+    let selectedPresetCh = "A";
+    document.querySelectorAll(".ch-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document
+          .querySelectorAll(".ch-tab")
+          .forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        selectedPresetCh = tab.dataset.ch;
+      });
+    });
+
     document.querySelectorAll(".preset-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         const dur =
           parseInt(document.getElementById("presetDuration").value) || 5;
         api("POST", "/dglab/pulse", {
-          channel: btn.dataset.ch,
+          channel: selectedPresetCh,
           preset: btn.dataset.preset,
           duration: dur,
         });
@@ -440,6 +451,7 @@ const App = (() => {
 
     document.getElementById("btnClearAll")?.addEventListener("click", () => {
       api("POST", "/dglab/clear", { channel: "A" });
+      api("POST", "/dglab/clear", { channel: "B" });
     });
     document.getElementById("btnClearLog")?.addEventListener("click", () => {
       document.getElementById("logContainer").innerHTML = "";
@@ -774,9 +786,15 @@ const App = (() => {
       typeof message === "string" &&
       message.startsWith("strength-")
     ) {
+      // DG-LAB Socket V3 APP 回传格式: strength-<sA>+<sB>+<limitA>+<limitB>
       const parts = message.replace("strength-", "").split("+");
-      if (parts.length >= 2)
-        syncStrength(parseInt(parts[0]), parseInt(parts[1]));
+      if (parts.length >= 2) {
+        const sA = parseInt(parts[0]);
+        const sB = parseInt(parts[1]);
+        const limitA = parts.length >= 4 ? parseInt(parts[2]) : undefined;
+        const limitB = parts.length >= 4 ? parseInt(parts[3]) : undefined;
+        syncStrength(sA, sB, limitA, limitB);
+      }
     }
   }
 
@@ -949,8 +967,8 @@ const App = (() => {
       ruleOn ? `${s.rules?.count} 条规则已激活` : "已暂停",
     );
     if (s.dglab?.state) {
-      const { strengthA, strengthB } = s.dglab.state;
-      syncStrength(strengthA, strengthB);
+      const { strengthA, strengthB, limitA, limitB } = s.dglab.state;
+      syncStrength(strengthA, strengthB, limitA, limitB);
       updateObsPreview(strengthA || 0, strengthB || 0, s.dglab?.ready);
     }
   }
@@ -971,14 +989,26 @@ const App = (() => {
     if (on) showHint("biliHint", `🌸 房间 ${roomId} 已连接，正在监听直播事件`);
   }
 
-  function syncStrength(sA, sB) {
-    if (sA !== undefined) {
+  function syncStrength(sA, sB, limitA, limitB) {
+    if (sA !== undefined && !isNaN(sA)) {
       document.getElementById("strengthA").textContent = sA;
       document.getElementById("sliderA").value = sA;
     }
-    if (sB !== undefined) {
+    if (sB !== undefined && !isNaN(sB)) {
       document.getElementById("strengthB").textContent = sB;
       document.getElementById("sliderB").value = sB;
+    }
+    if (limitA !== undefined && !isNaN(limitA)) {
+      const el = document.getElementById("limitA");
+      if (el) el.textContent = "上限: " + limitA;
+      const sl = document.getElementById("sliderA");
+      if (sl) sl.max = limitA;
+    }
+    if (limitB !== undefined && !isNaN(limitB)) {
+      const el = document.getElementById("limitB");
+      if (el) el.textContent = "上限: " + limitB;
+      const sl = document.getElementById("sliderB");
+      if (sl) sl.max = limitB;
     }
   }
 

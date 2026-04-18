@@ -1528,3 +1528,56 @@ input[type="checkbox"]:checked + .toggle-track::after {
 .obs-event-item {
   animation: obsEventIn 0.3s ease;
 }
+
+/* ─── 强度上限标签 ─── */
+.limit-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  transition: all 0.3s;
+  min-width: 52px;
+  text-align: center;
+}
+.limit-badge:not(:empty) {
+  color: var(--blue);
+  border-color: var(--blue-light);
+  background: var(--blue-dim);
+}
+
+/* ─── 波形通道选择 tab ─── */
+.ch-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  -webkit-app-region: no-drag;
+}
+.ch-tab {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-app-region: no-drag;
+}
+.ch-tab:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: var(--purple-dim);
+}
+.ch-tab.active {
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 2px 8px rgba(192, 132, 252, 0.3);
+}

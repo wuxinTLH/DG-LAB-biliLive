@@ -104,21 +104,25 @@ class MessageHandler {
       case "msg": // APP → 前端 的消息，直接转发（如 APP 回传强度）
         // 同步强度状态到控制器
         if (typeof message === "string" && message.startsWith("strength-")) {
-          // 格式: strength-<ch>+<sA>+<sB>  或  strength-<ch>+<mode>+<val>
-          // APP 回传格式: strength-<ch>+<currentA>+<currentB>
+          // DG-LAB Socket V3 APP 回传格式: strength-<sA>+<sB>+<limitA>+<limitB>
+          // parts[0]=A强度, parts[1]=B强度, parts[2]=A上限, parts[3]=B上限
           const parts = message.replace("strength-", "").split("+");
-          if (parts.length >= 3) {
-            const sA = parseInt(parts[1]);
-            const sB = parseInt(parts[2]);
+          if (parts.length >= 2) {
+            const sA = parseInt(parts[0]);
+            const sB = parseInt(parts[1]);
+            const limitA = parts.length >= 4 ? parseInt(parts[2]) : undefined;
+            const limitB = parts.length >= 4 ? parseInt(parts[3]) : undefined;
             const dgController = require("./controller");
-            if (!isNaN(sA) && !isNaN(sB)) {
-              dgController.updateState(
-                sA,
-                sB,
-                dgController.state.limitA,
-                dgController.state.limitB,
-              );
-            }
+            dgController.updateState(
+              isNaN(sA) ? dgController.state.strengthA : sA,
+              isNaN(sB) ? dgController.state.strengthB : sB,
+              limitA !== undefined && !isNaN(limitA)
+                ? limitA
+                : dgController.state.limitA,
+              limitB !== undefined && !isNaN(limitB)
+                ? limitB
+                : dgController.state.limitB,
+            );
           }
         }
         this._send(ws, { ...data, clientId: partner, targetId: clientId });

@@ -290,6 +290,7 @@
                 <div class="card-icon bili-icon">A</div>
                 <span class="card-title">A 通道</span>
                 <span class="strength-display" id="strengthA">0</span>
+                <span class="limit-badge" id="limitA"></span>
               </div>
               <div class="card-body">
                 <div style="padding: 6px 0">
@@ -310,6 +311,7 @@
                 <div class="card-icon dg-icon">B</div>
                 <span class="card-title">B 通道</span>
                 <span class="strength-display" id="strengthB">0</span>
+                <span class="limit-badge" id="limitB"></span>
               </div>
               <div class="card-body">
                 <div style="padding: 6px 0">
@@ -330,16 +332,20 @@
             <div class="card-header">
               <div class="card-icon" style="background:linear-gradient(135deg,var(--purple),var(--blue));color:white;box-shadow:0 3px 8px rgba(192,132,252,0.35)">🎵</div>
               <span class="card-title">波形预设</span>
-              <span class="badge">A 通道</span>
+              <div class="ch-tabs">
+                <button class="ch-tab active" id="chTabA" data-ch="A">A 通道</button>
+                <button class="ch-tab" id="chTabB" data-ch="B">B 通道</button>
+                <button class="ch-tab" id="chTabAB" data-ch="AB">A+B</button>
+              </div>
             </div>
             <div class="card-body">
               <div class="preset-grid">
-                <button class="preset-btn" data-preset="light" data-ch="A"><span class="p-icon">💤</span><span class="p-name">轻柔</span></button>
-                <button class="preset-btn" data-preset="rhythm" data-ch="A"><span class="p-icon">🎵</span><span class="p-name">节奏</span></button>
-                <button class="preset-btn" data-preset="wave" data-ch="A"><span class="p-icon">🌊</span><span class="p-name">波浪</span></button>
-                <button class="preset-btn" data-preset="pulse" data-ch="A"><span class="p-icon">💥</span><span class="p-name">脉冲</span></button>
-                <button class="preset-btn" data-preset="intense" data-ch="A"><span class="p-icon">⚡</span><span class="p-name">强烈</span></button>
-                <button class="preset-btn" data-preset="extreme" data-ch="A"><span class="p-icon">🔥</span><span class="p-name">极端</span></button>
+                <button class="preset-btn" data-preset="light"><span class="p-icon">💤</span><span class="p-name">轻柔</span></button>
+                <button class="preset-btn" data-preset="rhythm"><span class="p-icon">🎵</span><span class="p-name">节奏</span></button>
+                <button class="preset-btn" data-preset="wave"><span class="p-icon">🌊</span><span class="p-name">波浪</span></button>
+                <button class="preset-btn" data-preset="pulse"><span class="p-icon">💥</span><span class="p-name">脉冲</span></button>
+                <button class="preset-btn" data-preset="intense"><span class="p-icon">⚡</span><span class="p-name">强烈</span></button>
+                <button class="preset-btn" data-preset="extreme"><span class="p-icon">🔥</span><span class="p-name">极端</span></button>
               </div>
               <div class="duration-row">
                 <span class="field-label" style="margin: 0">持续时间</span>

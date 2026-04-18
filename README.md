@@ -1,9 +1,19 @@
 # ⚡ DG-BiLive
 ## 全称 DG-LAB BiliLive
 **B站直播间 × 郊狼 DG-LAB 联动控制器**
+
+**作者：[SakuraMikku](https://github.com/wuxinTLH/)**<br>
+**B站：[桜みっく](https://space.bilibili.com/29058270)**
+
 **Version : 0.0.1v-test**
 
 让观众的礼物、上舰、SC 直接驱动郊狼设备，打造全新的直播互动体验。
+
+># `温馨提醒`
+># `严禁` `未成年人`使用本软件
+># `严禁`在`上半身`使用郊狼设备
+># `严禁`使用本软件进行`违法活动`
+># `不建议`使用本软件进行`公开`直播
 
 ![Electron](https://img.shields.io/badge/Electron-29+-blue?logo=electron)
 ![Node](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)
@@ -27,7 +37,7 @@
 ## 🖥️ 截图预览
 
 > 应用使用蓝粉紫可爱风格 UI，支持 Windows 自定义标题栏（含关闭/最小化/最大化按钮）
-
+![预览图](./README_FILES/application_preview.png) 
 ---
 
 ## 📦 安装与运行
@@ -36,17 +46,22 @@
 
 - Node.js 18+
 - 郊狼 DG-LAB APP（iOS / Android）
-- B站直播间（任意公开房间）
+- B站直播间（不建议公开房间）
 
 ### 快速开始
 
 ```bash
 # 克隆仓库
 git clone https://github.com/wuxinTLH/DG-LAB-biliLive.git
+# 或手动下载项目压缩包并解压
+
+# 进入项目目录
 cd DG-LAB-biliLive
 
 # 安装依赖
 npm install
+#如果安装库失败，请尝试
+npm install --force
 
 # 测试启动
 npm run start
@@ -61,7 +76,6 @@ npm run dev
 # 构建为可执行文件（Windows: .exe, macOS: .dmg, Linux: .AppImage）
 npm run build
 ```
-
 ---
 
 ## 🚀 使用说明
@@ -70,13 +84,13 @@ npm run build
 
 1. 在「连接」页面输入直播间数字房间号（如 `1945098`）
 2. 点击「连接」按钮
-3. 可选填写 `SESSDATA` Cookie 以显示弹幕用户真实名称
+3. 可选(建议)填写 `SESSDATA` Cookie 以显示弹幕用户真实名称
 
 ### 2. 配对郊狼设备
-
-1. 填写本机 IP 地址（外网需填公网 IP 或内网穿透地址）
-2. 点击「生成配对二维码」
-3. 打开郊狼 APP，扫描二维码完成配对
+1. 郊狼APP版本要求:DG-LAB 3.5.0(支持) | DG-LAB 4.0.0暂不支持
+2. 填写本机 IP 地址（外网需填公网 IP 或内网穿透地址）
+3. 点击「生成配对二维码」
+4. 打开郊狼 APP，扫描二维码完成配对
 
 ### 3. 选择触发模式
 
@@ -104,7 +118,7 @@ npm run build
 
 ### 环境变量
 
-在项目根目录创建 `.env` 文件：
+在项目根目录创建 `.env` 文件或复制 `.env.example` 改名为 `.env` 文件：
 
 ```env
 # 郊狼 WebSocket 端口（默认 9999）
@@ -113,7 +127,7 @@ DGLAB_WS_PORT=9999
 # HTTP API 端口（默认 9998）
 APP_API_PORT=9998
 
-# 可选(建议填写)：B站 SESSDATA（也可在 UI 中动态填写）
+# 可选(建议填写)：B站 SESSDATA（也可在 UI 中动态填写,但不建议）
 BILI_SESSDATA=your_sessdata_here
 如果没有填写SESSDATA，则无法显示弹幕或礼物的用户真实名称
 温馨提醒：SESSDATA 是 B站用户登录凭证，请勿泄露给他人
@@ -170,12 +184,13 @@ DG-LAB-biliLive/
 
 ## 🔧 技术栈
 
-- **前端**：原生 HTML / CSS / JavaScript（无框架）
+- **前端**：原生 HTML / CSS / JavaScript
 - **桌面**：Electron 29
 - **服务端**：Node.js + Express
 - **B站连接**：[bilibili-live-ws](https://github.com/simon300000/bilibili-live-ws)
 - **WebSocket**：ws
 - **二维码**：qrcode
+- **郊狼控制**：DGLAB
 
 ---
 
@@ -190,7 +205,7 @@ DG-LAB-biliLive/
 
 ## 📄 许可证
 
-MIT License
+[MIT License](./LICENSE)
 
 二次开发或转载标注原作者信息(或仓库)即可
 
