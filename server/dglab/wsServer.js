@@ -67,16 +67,8 @@ function createDGLabWSServer(port) {
         return;
       }
 
-      // 根据角色分发：如果是已配对的 APP，走 handleFromApp
-      const partner = connManager.getPartner(clientId);
-      const dgController = require("./controller");
-      if (partner && dgController.appClientId === clientId) {
-        // 这是 APP 发来的消息
-        msgHandler.handleFromApp(clientId, ws, data);
-      } else {
-        // 这是终端（或待配对的 APP）发来的消息
-        msgHandler.handle(clientId, ws, data);
-      }
+      // 所有消息统一走 handle()，内部按 type 区分处理
+      msgHandler.handle(clientId, ws, data);
     });
 
     ws.on("close", () => {
